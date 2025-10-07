@@ -1,45 +1,48 @@
-"use client"
+'use client';
+
 import { useState } from 'react';
 import { X, Plus, Edit2, Trash2, Eye, Check } from 'lucide-react';
 
+const initialTasks = [
+  {
+    id: 1,
+    title: 'Review Q4 Financial Reports',
+    description: 'Analyze revenue trends, expense ratios, and prepare summary for stakeholder meeting.',
+    completed: false,
+    createdAt: new Date('2024-10-01T09:00:00').toISOString()
+  },
+  {
+    id: 2,
+    title: 'Update Product Documentation',
+    description: 'Revise user guides and API documentation to reflect recent feature releases.',
+    completed: true,
+    createdAt: new Date('2024-10-02T14:30:00').toISOString()
+  },
+  {
+    id: 3,
+    title: 'Client Meeting Preparation',
+    description: 'Prepare presentation slides and project timeline for upcoming client review meeting.',
+    completed: false,
+    createdAt: new Date('2024-10-03T11:00:00').toISOString()
+  },
+  {
+    id: 4,
+    title: 'Code Review - Authentication Module',
+    description: 'Review pull request #247 for the new OAuth implementation and provide feedback.',
+    completed: false,
+    createdAt: new Date('2024-10-04T16:00:00').toISOString()
+  },
+  {
+    id: 5,
+    title: 'Team Performance Reviews',
+    description: 'Complete quarterly performance evaluations for direct reports.',
+    completed: true,
+    createdAt: new Date('2024-09-28T10:00:00').toISOString()
+  }
+];
+
 export default function TodoApp() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: 'Review Q4 Financial Reports',
-      description: 'Analyze revenue trends, expense ratios, and prepare summary for stakeholder meeting.',
-      completed: false,
-      createdAt: new Date('2024-10-01T09:00:00').toISOString()
-    },
-    {
-      id: 2,
-      title: 'Update Product Documentation',
-      description: 'Revise user guides and API documentation to reflect recent feature releases.',
-      completed: true,
-      createdAt: new Date('2024-10-02T14:30:00').toISOString()
-    },
-    {
-      id: 3,
-      title: 'Client Meeting Preparation',
-      description: 'Prepare presentation slides and project timeline for upcoming client review meeting.',
-      completed: false,
-      createdAt: new Date('2024-10-03T11:00:00').toISOString()
-    },
-    {
-      id: 4,
-      title: 'Code Review - Authentication Module',
-      description: 'Review pull request #247 for the new OAuth implementation and provide feedback.',
-      completed: false,
-      createdAt: new Date('2024-10-04T16:00:00').toISOString()
-    },
-    {
-      id: 5,
-      title: 'Team Performance Reviews',
-      description: 'Complete quarterly performance evaluations for direct reports.',
-      completed: true,
-      createdAt: new Date('2024-09-28T10:00:00').toISOString()
-    }
-  ]);
+  const [tasks, setTasks] = useState(initialTasks);
   const [filter, setFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
