@@ -3,7 +3,17 @@
 import { useState } from 'react';
 import { X, Plus, Edit2, Trash2, Eye, Check } from 'lucide-react';
 
-const initialTasks = [
+// 1. Define Task type
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  completed: boolean;
+  createdAt: string;
+}
+
+// 2. Initial tasks
+const initialTasks: Task[] = [
   {
     id: 1,
     title: 'Review Q4 Financial Reports',
@@ -41,55 +51,66 @@ const initialTasks = [
   }
 ];
 
+// 3. Form data type
+interface FormData {
+  title: string;
+  description: string;
+}
+
 export default function TodoApp() {
-  const [tasks, setTasks] = useState(initialTasks);
-  const [filter, setFilter] = useState('all');
+  // 4. State typing
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-  const [viewingTask, setViewingTask] = useState(null);
-  const [taskToDelete, setTaskToDelete] = useState(null);
-  const [formData, setFormData] = useState({ title: '', description: '' });
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [viewingTask, setViewingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [formData, setFormData] = useState<FormData>({ title: '', description: '' });
 
+  // 5. Add/Edit Task
   const addTask = () => {
     if (!formData.title.trim()) return;
-    
+
     if (editingTask) {
-      setTasks(tasks.map(task => 
-        task.id === editingTask.id 
+      setTasks(tasks.map(task =>
+        task.id === editingTask.id
           ? { ...task, title: formData.title, description: formData.description }
           : task
       ));
       setEditingTask(null);
     } else {
-      const newTask = {
+      const newTask: Task = {
         id: Date.now(),
         title: formData.title,
         description: formData.description,
         completed: false,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
       setTasks([...tasks, newTask]);
     }
-    
+
     setFormData({ title: '', description: '' });
     setIsModalOpen(false);
   };
 
-  const deleteTask = (id) => {
+  // 6. Delete Task
+  const deleteTask = (id: number) => {
     setTasks(tasks.filter(task => task.id !== id));
     setIsDeleteConfirmOpen(false);
     setTaskToDelete(null);
   };
 
-  const toggleComplete = (id) => {
+  // 7. Toggle complete
+  const toggleComplete = (id: number) => {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
-  const openEditModal = (task) => {
+  // 8. Modal helpers
+  const openEditModal = (task: Task) => {
     setEditingTask(task);
     setFormData({ title: task.title, description: task.description });
     setIsModalOpen(true);
@@ -101,16 +122,17 @@ export default function TodoApp() {
     setIsModalOpen(true);
   };
 
-  const openDetailModal = (task) => {
+  const openDetailModal = (task: Task) => {
     setViewingTask(task);
     setIsDetailModalOpen(true);
   };
 
-  const openDeleteConfirm = (task) => {
+  const openDeleteConfirm = (task: Task) => {
     setTaskToDelete(task);
     setIsDeleteConfirmOpen(true);
   };
 
+  // 9. Filtered tasks
   const filteredTasks = tasks.filter(task => {
     if (filter === 'active') return !task.completed;
     if (filter === 'completed') return task.completed;
@@ -123,15 +145,12 @@ export default function TodoApp() {
         {/* Header */}
         <div className="mb-8 border-b border-slate-200 pb-8">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-              Task Manager
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900">Task Manager</h1>
             <button
               onClick={openAddModal}
               className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
             >
-              <Plus size={20} />
-              New Task
+              <Plus size={20} /> New Task
             </button>
           </div>
           <p className="text-slate-600">Manage your tasks and projects efficiently</p>
@@ -144,7 +163,7 @@ export default function TodoApp() {
             {['all', 'active', 'completed'].map(f => (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => setFilter(f as 'all' | 'active' | 'completed')}
                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   filter === f
                     ? 'bg-slate-900 text-white'
@@ -164,34 +183,21 @@ export default function TodoApp() {
         <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-200 shadow-sm">
           {filteredTasks.length === 0 ? (
             <div className="text-center py-16">
-              <div className="text-slate-300 mb-3">
-                <Check size={64} className="mx-auto" />
-              </div>
+              <div className="text-slate-300 mb-3"><Check size={64} className="mx-auto" /></div>
               <p className="text-slate-500 text-lg font-medium mb-1">
-                {filter === 'completed' ? 'No completed tasks' : 
-                 filter === 'active' ? 'No active tasks' : 
-                 'No tasks found'}
+                {filter === 'completed' ? 'No completed tasks' : filter === 'active' ? 'No active tasks' : 'No tasks found'}
               </p>
-              <p className="text-slate-400 text-sm">
-                {filter === 'all' && 'Create a new task to get started'}
-              </p>
+              <p className="text-slate-400 text-sm">{filter === 'all' && 'Create a new task to get started'}</p>
             </div>
           ) : (
             filteredTasks.map(task => (
-              <div
-                key={task.id}
-                className={`p-5 hover:bg-slate-50 transition-colors ${
-                  task.completed ? 'bg-slate-50/50' : ''
-                }`}
-              >
+              <div key={task.id} className={`p-5 hover:bg-slate-50 transition-colors ${task.completed ? 'bg-slate-50/50' : ''}`}>
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
                   <button
                     onClick={() => toggleComplete(task.id)}
                     className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
-                      task.completed
-                        ? 'bg-green-500 border-green-500'
-                        : 'border-slate-300 hover:border-slate-400'
+                      task.completed ? 'bg-green-500 border-green-500' : 'border-slate-300 hover:border-slate-400'
                     }`}
                   >
                     {task.completed && <Check size={14} className="text-white" strokeWidth={3} />}
@@ -199,15 +205,11 @@ export default function TodoApp() {
 
                   {/* Task Content */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold text-slate-900 mb-1.5 ${
-                      task.completed ? 'line-through text-slate-500' : ''
-                    }`}>
+                    <h3 className={`font-semibold text-slate-900 mb-1.5 ${task.completed ? 'line-through text-slate-500' : ''}`}>
                       {task.title}
                     </h3>
                     {task.description && (
-                      <p className={`text-sm line-clamp-2 ${
-                        task.completed ? 'text-slate-400' : 'text-slate-600'
-                      }`}>
+                      <p className={`text-sm line-clamp-2 ${task.completed ? 'text-slate-400' : 'text-slate-600'}`}>
                         {task.description}
                       </p>
                     )}
@@ -249,22 +251,15 @@ export default function TodoApp() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-slate-800">
-                {editingTask ? 'Edit Task' : 'Add New Task'}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
+              <h2 className="text-2xl font-bold text-slate-800">{editingTask ? 'Edit Task' : 'Add New Task'}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                 <X size={24} />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Title *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Title *</label>
                 <input
                   type="text"
                   value={formData.title}
@@ -276,14 +271,12 @@ export default function TodoApp() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Add more details (optional)"
-                  rows="4"
+                  rows={4}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition-all"
                 />
               </div>
@@ -313,24 +306,15 @@ export default function TodoApp() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-slate-800 pr-8">
-                {viewingTask.title}
-              </h2>
-              <button
-                onClick={() => setIsDetailModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
-              >
+              <h2 className="text-2xl font-bold text-slate-800 pr-8">{viewingTask.title}</h2>
+              <button onClick={() => setIsDetailModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0">
                 <X size={24} />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                  viewingTask.completed
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-blue-100 text-blue-700'
-                }`}>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${viewingTask.completed ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                   {viewingTask.completed ? 'Completed' : 'Active'}
                 </span>
               </div>
@@ -338,17 +322,13 @@ export default function TodoApp() {
               {viewingTask.description && (
                 <div>
                   <h3 className="text-sm font-medium text-slate-700 mb-2">Description</h3>
-                  <p className="text-slate-600 whitespace-pre-wrap">
-                    {viewingTask.description}
-                  </p>
+                  <p className="text-slate-600 whitespace-pre-wrap">{viewingTask.description}</p>
                 </div>
               )}
 
               <div>
                 <h3 className="text-sm font-medium text-slate-700 mb-2">Created</h3>
-                <p className="text-slate-600">
-                  {new Date(viewingTask.createdAt).toLocaleString()}
-                </p>
+                <p className="text-slate-600">{new Date(viewingTask.createdAt).toLocaleString()}</p>
               </div>
 
               <button
@@ -366,9 +346,7 @@ export default function TodoApp() {
       {isDeleteConfirmOpen && taskToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">
-              Delete Task?
-            </h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Delete Task?</h2>
             <p className="text-slate-600 mb-6">
               Are you sure you want to delete "{taskToDelete.title}"? This action cannot be undone.
             </p>
